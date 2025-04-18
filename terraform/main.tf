@@ -37,6 +37,7 @@ resource "google_container_cluster" "primary" {
       display_name = "my-mac"
     }
   }
+  deletion_protection = false
 }
 
 resource "google_container_node_pool" "primary_nodes" {
