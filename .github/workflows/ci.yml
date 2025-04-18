@@ -1,0 +1,26 @@
+# .github/workflows/ci.yml
+name: CI
+
+on:
+  push:
+    branches: [staging]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker us-central1-docker.pkg.dev
+
+      - name: Build and Push Docker Image
+        run: |
+          docker build -t us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/app/myapp:$GITHUB_SHA .
+          docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/app/myapp:$GITHUB_SHA

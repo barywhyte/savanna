@@ -1,0 +1,10 @@
+# cloudbuild/staging.yaml
+steps:
+  - name: gcr.io/cloud-builders/gcloud
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        gcloud secrets versions access latest --secret=DB_PASSWORD > db.txt
+        kubectl create secret generic db-secret --from-file=password=db.txt -n staging --dry-run=client -o yaml | kubectl apply -f -
+        sed "s/TAG/$SHORT_SHA/g" k8s/deployment.yaml | kubectl apply -n staging -f -
